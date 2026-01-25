@@ -1,45 +1,56 @@
-# MovieManagementAPI — ASP.NET Core Web API + MVC Client
+# MovieManagementAPI â€” ASP.NET Core Web API + MVC Client (.NET 10)
 
-## Overview  
-MovieManagementAPI is a two-tier movie management system consisting of a RESTful ASP.NET Core Web API and an MVC client application that consumes the API.  
-The project demonstrates API design, DTO usage, async/await workflows, clean separation of concerns, and distributed architecture with a dedicated client UI.
+## Overview
+MovieManagementAPI is a two-tier movie management system consisting of:
+- an **ASP.NET Core Web API** exposing RESTful endpoints, and  
+- a separate **ASP.NET Core MVC client** that consumes the API via **HttpClient**.
 
----
-
-## Tech Stack  
-- ASP.NET Core Web API + MVC Client  
-- C#, .NET 10  
-- Entity Framework Core  
-- JSON Serialization  
-- HttpClient  
-- Dependency Injection  
+The project demonstrates clean API design, **DTO-based boundaries** between the API and UI, asynchronous request handling, and a maintainable structure aligned with modern .NET development practices.
 
 ---
 
-## Key Features  
-- REST API with CRUD endpoints for managing movie records  
-- DTOs and mapping between API responses and the MVC client  
-- Asynchronous HttpClient consumption with proper error handling  
-- JSON serialization/deserialization for reliable data exchange  
-- Repository Pattern abstraction for clean data access  
-- Filtering, sorting, validation, and server-side error handling  
-- MVC UI for displaying and interacting with API-driven data  
+## Tech Stack
+**Core**
+- C# Â· .NET 10 Â· ASP.NET Core Web API Â· ASP.NET Core MVC
+
+**Data & Integration**
+- SQL Server Â· Entity Framework Core Â· LINQ Â· JSON Â· HttpClient
+
+**Architecture & Practices**
+- Dependency Injection Â· Repository Pattern Â· DTO-based contracts Â· Async/Await
 
 ---
 
-## Architecture & Concepts  
-- Distributed architecture (API backend + MVC client frontend)  
-- Async/await operations for scalable API consumption  
-- Repository Pattern for maintainable data access  
-- DTOs for API boundary separation  
-- Layered design with modular controllers and clean responsibilities  
+## Key Features
+- RESTful Web API with full CRUD endpoints for managing movie records  
+- Clear separation between API and client using **Data Transfer Objects (DTOs)**  
+- MVC client consuming endpoints asynchronously via **HttpClient**  
+- Structured JSON request/response handling for reliable data exchange  
+- Repository-based data access for maintainable persistence logic  
+- Filtering and sorting for list views and query-style workflows  
+- Validation and consistent error handling to support predictable API behavior  
 
 ---
 
-## Skills Demonstrated  
-C# · ASP.NET Core Web API · MVC · EF Core · DTOs · HttpClient · Async Programming · JSON · Repository Pattern
+## Architecture Notes
+This repository is intentionally organized as a **backend API + dedicated client**:
+- The **Web API** acts as the source of truth (domain and persistence).
+- The **MVC client** focuses on UI, request orchestration, and presenting API data.
+- **DTOs** define the boundary between layers to avoid leaking domain/persistence models.
+- **Dependency Injection** keeps controllers and services loosely coupled and testable.
 
 ---
 
-## Project Status  
-Actively maintained and improved to align with professional API development practices and architectural standards.
+## What This Project Demonstrates
+- Designing a maintainable REST API in ASP.NET Core  
+- Consuming an API from an MVC client using HttpClient and async/await  
+- Applying DTO-based boundaries and repository-style data access  
+- Working with SQL Server-backed persistence via Entity Framework Core and LINQ  
+
+---
+
+## Repository
+github.com/AlanRacic/MovieManagementAPI
+
+## Status
+Actively maintained and iterated to reflect professional API development practices and clean architectural structure.
