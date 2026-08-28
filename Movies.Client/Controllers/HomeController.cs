@@ -1,17 +1,19 @@
 using System.Diagnostics;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Client.Models;
-using System.Text.Json;
 
 namespace Movies.Client.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
         public IActionResult Index()
@@ -32,58 +34,48 @@ namespace Movies.Client.Controllers
 
         public async Task<IActionResult> GetMovies()
         {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7008/api/Movies");
-            var content = new StringContent("\"test\"", null, "application/json");
-            request.Content = content;
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            string result = await response.Content.ReadAsStringAsync();
-            JsonSerializerOptions jo = new JsonSerializerOptions() 
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            List<Movie> movies = JsonSerializer.Deserialize<List<Movie>>(result, jo);
-            return View(movies);
+            var client = _httpClientFactory.CreateClient("MoviesApi");
+
+            var movies = await client.GetFromJsonAsync<List<Movie>>("api/Movies");
+
+            return View(movies ?? new List<Movie>());
         }
 
-        public async Task<IActionResult> CreateMovie()
+        public IActionResult CreateMovie()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> CreateMovie(Movie movie)
         {
             ModelState.Remove("Id");
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                var client = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:7008/api/Movies");
-                var content = new StringContent(JsonSerializer.Serialize(movie), null, "application/json");
-                request.Content = content;
-                var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-                //Console.WriteLine(await response.Content.ReadAsStringAsync());
-                return RedirectToAction(nameof(GetMovies));
+                return View(movie);
             }
-            return View(movie);
+
+            var client = _httpClientFactory.CreateClient("MoviesApi");
+
+            var response = await client.PostAsJsonAsync("api/Movies", movie);
+
+            response.EnsureSuccessStatusCode();
+
+            return RedirectToAction(nameof(GetMovies));
         }
 
         public async Task<IActionResult> GetMovie(int id)
         {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7008/api/Movies/" + id.ToString());
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            var client = _httpClientFactory.CreateClient("MoviesApi");
+
+            var movie = await client.GetFromJsonAsync<Movie>($"api/Movies/{id}");
+
+            if (movie is null)
             {
+                return NotFound();
             }
-            var result = await response.Content.ReadAsStringAsync();
-            JsonSerializerOptions jo = new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            Movie movie = JsonSerializer.Deserialize<Movie>(result, jo);
+
             return View(movie);
         }
     }

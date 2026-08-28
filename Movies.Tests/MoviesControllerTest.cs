@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Movies.Data.Models;
+﻿using Movies.Data.Models;
 using Movies.Data.Repositories;
 using Movies.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +14,38 @@ namespace Movies.Tests
 
         public MoviesControllerTest()
         {
-            _context = new MovieManagementContext();
+            var options =
+                new DbContextOptionsBuilder<MovieManagementContext>()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .Options;
+
+            _context = new MovieManagementContext(options);
+
+            SeedMovies();
+
             _repository = new MovieRepository(_context);
             _controller = new MoviesController(_repository);
+        }
+
+        private void SeedMovies()
+        {
+            _context.Movies.AddRange(
+                new Movie { Id = 1, Title = "Movie 1", Genre = "Drama", ReleaseYear = 2001 },
+                new Movie { Id = 2, Title = "Movie 2", Genre = "Action", ReleaseYear = 2002 },
+                new Movie { Id = 3, Title = "Movie 3", Genre = "Comedy", ReleaseYear = 2003 },
+                new Movie { Id = 4, Title = "Movie 4", Genre = "Drama", ReleaseYear = 2004 },
+                new Movie { Id = 5, Title = "Movie 5", Genre = "Action", ReleaseYear = 2005 },
+                new Movie { Id = 6, Title = "Movie 6", Genre = "Comedy", ReleaseYear = 2006 },
+                new Movie { Id = 7, Title = "Conan", Genre = "Adventure", ReleaseYear = 1982 },
+                new Movie { Id = 8, Title = "Movie 8", Genre = "Drama", ReleaseYear = 2008 },
+                new Movie { Id = 9, Title = "Movie 9", Genre = "Action", ReleaseYear = 2009 },
+                new Movie { Id = 10, Title = "Movie 10", Genre = "Comedy", ReleaseYear = 2010 },
+                new Movie { Id = 11, Title = "Movie 11", Genre = "Drama", ReleaseYear = 2011 },
+                new Movie { Id = 12, Title = "Movie 12", Genre = "Action", ReleaseYear = 2012 },
+                new Movie { Id = 13, Title = "Movie 13", Genre = "Comedy", ReleaseYear = 2013 },
+                new Movie { Id = 14, Title = "Movie 14", Genre = "Drama", ReleaseYear = 2014 });
+
+            _context.SaveChanges();
         }
 
         [Fact]
@@ -29,10 +53,10 @@ namespace Movies.Tests
         { 
             var result = _controller.GetMovies();
 
-            Assert.IsType<OkObjectResult>(result.Result.Result);
-            var okobject = result.Result.Result as OkObjectResult;
-            Assert.IsType<List<Movie>>(okobject.Value);
-            var listMovies = ((List<Movie>)okobject.Value);
+            Assert.IsType<OkObjectResult>(result.Result);
+            var okObject = result.Result as OkObjectResult;
+            Assert.IsType<List<Movie>>(okObject.Value);
+            var listMovies = ((List<Movie>)okObject.Value);
             Assert.Equal(14, listMovies.Count);
         }
 
@@ -41,10 +65,10 @@ namespace Movies.Tests
         {
             var result = _controller.GetMovies();
 
-            Assert.IsType<OkObjectResult>(result.Result.Result);
-            var okobject = result.Result.Result as OkObjectResult;
-            Assert.IsType<List<Movie>>(okobject.Value);
-            var listMovies = ((List<Movie>)okobject.Value);
+            Assert.IsType<OkObjectResult>(result.Result);
+            var okObject = result.Result as OkObjectResult;
+            Assert.IsType<List<Movie>>(okObject.Value);
+            var listMovies = ((List<Movie>)okObject.Value);
             Assert.NotEqual(3, listMovies.Count);
         }
 
@@ -55,10 +79,10 @@ namespace Movies.Tests
             var okResult = _controller.GetMovie(id1);
             var notFoundResult = _controller.GetMovie(id2);
 
-            Assert.IsType<OkObjectResult>(okResult.Result.Result);
-            Assert.IsType<NotFoundResult>(notFoundResult.Result.Result);
+            Assert.IsType<OkObjectResult>(okResult.Result);
+            Assert.IsType<NotFoundResult>(notFoundResult.Result);
 
-            var item = okResult.Result.Result as OkObjectResult;
+            var item = okResult.Result as OkObjectResult;
 
             Assert.IsType<Movie>(item.Value);
 
@@ -81,7 +105,7 @@ namespace Movies.Tests
 
             var badResponse = _controller.PostMovie(missingId);
 
-            Assert.IsType<BadRequestResult>(badResponse.Result.Result);
+            Assert.IsType<BadRequestResult>(badResponse.Result);
         }
 
         [Fact]
@@ -96,8 +120,8 @@ namespace Movies.Tests
 
             var createdResponse = _controller.PostMovie(newMovie);
 
-            Assert.IsType<CreatedAtActionResult>(createdResponse.Result.Result);
-            var movie = (createdResponse.Result.Result as CreatedAtActionResult).Value as Movie;
+            Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
+            var movie = (createdResponse.Result as CreatedAtActionResult).Value as Movie;
 
             var deleted = _controller.DeleteMovie(movie.Id);
 

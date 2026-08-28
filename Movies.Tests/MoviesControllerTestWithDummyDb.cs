@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Movies.Data.Models;
+﻿using Movies.Data.Models;
 using Movies.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,9 +14,9 @@ namespace Movies.Tests
 
             var result = controller.GetMovies();
 
-            Assert.IsType<OkObjectResult>(result.Result.Result);
-            Assert.IsType<List<Movie>>((result.Result.Result as OkObjectResult).Value);
-            var list = (result.Result.Result as OkObjectResult).Value as List<Movie>;
+            Assert.IsType<OkObjectResult>(result.Result);
+            Assert.IsType<List<Movie>>((result.Result as OkObjectResult).Value);
+            var list = (result.Result as OkObjectResult).Value as List<Movie>;
             Assert.Equal(7, list.Count);
         }
 
@@ -33,10 +28,10 @@ namespace Movies.Tests
 
             var result = controller.GetMovies();
 
-            Assert.IsType<OkObjectResult>(result.Result.Result);
-            var okobject = result.Result.Result as OkObjectResult;
-            Assert.IsType<List<Movie>>(okobject.Value);
-            var listMovies = ((List<Movie>)okobject.Value);
+            Assert.IsType<OkObjectResult>(result.Result);
+            var okObject = result.Result as OkObjectResult;
+            Assert.IsType<List<Movie>>(okObject.Value);
+            var listMovies = ((List<Movie>)okObject.Value);
             Assert.NotEqual(3, listMovies.Count);
         }
 
@@ -55,7 +50,7 @@ namespace Movies.Tests
 
             var createdResponse = controller.PostMovie(newMovie);
 
-            Assert.IsType<CreatedAtActionResult>(createdResponse.Result.Result);
+            Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
             Assert.Equal(8, repo.GetAll().ToList().Count);
         }
 
@@ -69,8 +64,8 @@ namespace Movies.Tests
 
             var okResult = controller.GetMovie(id);
 
-            Assert.IsType<OkObjectResult>(okResult.Result.Result);
-            var movie = (okResult.Result.Result as OkObjectResult).Value as Movie;
+            Assert.IsType<OkObjectResult>(okResult.Result);
+            var movie = (okResult.Result as OkObjectResult).Value as Movie;
             Assert.Equal(id, movie.Id);
             Assert.Equal(title, movie.Title);
         }
@@ -83,7 +78,7 @@ namespace Movies.Tests
 
             var notfound = controller.GetMovie(12);
 
-            Assert.IsType<NotFoundResult>(notfound.Result.Result);
+            Assert.IsType<NotFoundResult>(notfound.Result);
         }
 
         [Fact]
@@ -102,7 +97,7 @@ namespace Movies.Tests
 
             var badresponse = controller.PostMovie(newMovie);
 
-            Assert.IsType<BadRequestResult>(badresponse.Result.Result);
+            Assert.IsType<BadRequestResult>(badresponse.Result);
         }
 
         [Theory]
@@ -130,9 +125,9 @@ namespace Movies.Tests
             var repo = new TestRepo();
             var controller = new MoviesController(repo);
 
-            var notfound = controller.DeleteMovie(id);
+            var notFound = controller.DeleteMovie(id);
 
-            Assert.IsType<NotFoundObjectResult>(notfound);
+            Assert.IsType<NotFoundObjectResult>(notFound);
 
             Assert.Equal(7, repo.GetAll().ToList().Count);
         }

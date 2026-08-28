@@ -5,11 +5,11 @@ namespace Movies.Data.Interfaces
     public interface IMovieRepository
     {
         IEnumerable<Movie> GetAll();
-        Movie GetmovieById(int id);
+        Movie? GetMovieById(int id);
         Movie InsertMovie(Movie movie);
-        Movie UpdateMovie(Movie movie);
-        Movie DeleteMovie(int id);
+        Movie? UpdateMovie(Movie movie);
+        Movie? DeleteMovie(int id);
 
-        IEnumerable<Movie> QueryStringfilter(string s, string orderby, int per_page, int page);
+        IEnumerable<Movie> QueryStringFilter(string? search, string orderBy, int perPage, int page);
     }
 }
