@@ -23,7 +23,7 @@ namespace Movies.API.Controllers
 
         // GET: api/Movies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+        public ActionResult<IEnumerable<Movie>> GetMovies()
         {
             try
             {
@@ -37,11 +37,11 @@ namespace Movies.API.Controllers
 
         // GET: api/Movies/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(int id)
+        public ActionResult<Movie> GetMovie(int id)
         {
             try
             {
-                var movie = _repo.GetmovieById(id);
+                var movie = _repo.GetMovieById(id);
 
                 if (movie == null) return NotFound();
                 
@@ -55,7 +55,7 @@ namespace Movies.API.Controllers
 
         // POST: api/Movies
         [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        public ActionResult<Movie> PostMovie(Movie movie)
         {
             try
             {
@@ -116,8 +116,8 @@ namespace Movies.API.Controllers
         {
             try
             {
-                var result = _repo.QueryStringfilter(s, orderby, per_page, page);
-                if (result == null) return NotFound();
+                var result = _repo.QueryStringFilter(s, orderby, per_page, page);
+
                 return Ok(result);
             }
             catch (Exception ex)

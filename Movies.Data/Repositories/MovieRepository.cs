@@ -1,4 +1,5 @@
-﻿using Movies.Data.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Movies.Data.Interfaces;
 using Movies.Data.Models;
 
 namespace Movies.Data.Repositories
@@ -13,12 +14,12 @@ namespace Movies.Data.Repositories
 
         public IEnumerable<Movie> GetAll()
         {
-            return _context.Movies.ToList();
+            return _context.Movies.AsNoTracking().ToList();
         }
 
-        public Movie GetmovieById(int id)
+        public Movie? GetMovieById(int id)
         {
-            return _context.Movies.FirstOrDefault(m => m.Id == id);
+            return _context.Movies.AsNoTracking().FirstOrDefault(m => m.Id == id);
         }
 
         public Movie InsertMovie(Movie movie)
@@ -28,61 +29,64 @@ namespace Movies.Data.Repositories
             return result.Entity;
         }
 
-        public Movie UpdateMovie(Movie movie)
+        public Movie? UpdateMovie(Movie movie)
         {
-            var dbmovie = _context.Movies.FirstOrDefault(m => m.Id == movie.Id);
-            if (dbmovie != null)
-            {
-                dbmovie.Title = movie.Title;
-                dbmovie.Genre = movie.Genre;
-                dbmovie.ReleaseYear = movie.ReleaseYear;
+            var dbMovie = _context.Movies.FirstOrDefault(m => m.Id == movie.Id);
 
-                _context.SaveChanges();
-                return dbmovie;
+            if (dbMovie is null)
+            {
+                return null;
             }
 
-            return null;
+            dbMovie.Title = movie.Title;
+            dbMovie.Genre = movie.Genre;
+            dbMovie.ReleaseYear = movie.ReleaseYear;
+
+            _context.SaveChanges();
+
+            return dbMovie;
         }
 
-        public Movie DeleteMovie(int id)
+        public Movie? DeleteMovie(int id)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Id == id);
-            if (movie != null)
+
+            if (movie is null)
             {
-                _context.Movies.Remove(movie);
-                _context.SaveChanges();
-                return movie;
+                return null;
             }
 
-            return null;
+            _context.Movies.Remove(movie);
+            _context.SaveChanges();
+
+            return movie;
         }
 
-        public IEnumerable<Movie> QueryStringfilter(string s, string orderby, int per_page, int page)
+        public IEnumerable<Movie> QueryStringFilter(string? search, string orderBy, int perPage, int page)
         {
-            var movies = _context.Movies.ToList();
+            var query = _context.Movies.AsNoTracking().AsQueryable();
 
-            if (!String.IsNullOrEmpty(s))
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                movies = movies.Where(m => m.Title.Contains(s)).ToList();
+                query = query.Where(movie => movie.Title.Contains(search));
             }
 
-            switch (orderby)
+            query = orderBy.ToLowerInvariant() switch
             {
-                case "asc":
-                    movies = movies.OrderBy(m => m.Title).ToList();
-                    break;
-                case "desc":
-                    movies = movies.OrderByDescending(m => m.Title).ToList();
-                    break;
+                "desc" => query.OrderByDescending(movie => movie.Title),
+                _ => query.OrderBy(movie => movie.Title)
+            };
+
+            if (perPage > 0)
+            {
+                page = Math.Max(page, 1);
+
+                query = query
+                    .Skip(perPage * (page - 1))
+                    .Take(perPage);
             }
 
-            if (per_page > 0)
-            {
-                if (page < 1) page = 1;
-                movies = movies.Skip(per_page * (page - 1)).Take(per_page).ToList();
-            }
-
-            return movies;
+            return query.ToList();
         }
     }
 }

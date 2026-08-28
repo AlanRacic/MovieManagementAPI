@@ -23,13 +23,15 @@ namespace Movies.Tests
             _movies.Add(new Movie { Id = 7, Title = "Superman", Genre = "Action", ReleaseYear = 2012 });
         }
 
-        public Movie DeleteMovie(int id)
+        public Movie? DeleteMovie(int id)
         {
-            var movie = _movies.Where(m => m.Id == id).FirstOrDefault();
-            if (movie != null)
+            var movie = _movies.FirstOrDefault(m => m.Id == id);
+
+            if (movie is not null)
             {
                 _movies.Remove(movie);
             }
+
             return movie;
         }
 
@@ -38,9 +40,9 @@ namespace Movies.Tests
             return _movies;
         }
 
-        public Movie GetmovieById(int id)
+        public Movie? GetMovieById(int id)
         {
-            return _movies.Where(m => m.Id == id).FirstOrDefault();
+            return _movies.FirstOrDefault(m => m.Id == id);
         }
 
         public Movie InsertMovie(Movie movie)
@@ -49,20 +51,46 @@ namespace Movies.Tests
             return movie;
         }
 
-        public IEnumerable<Movie> QueryStringfilter(string s, string orderby, int per_page, int page)
+        public IEnumerable<Movie> QueryStringFilter(string? search, string orderBy, int perPage, int page)
         {
-            throw new NotImplementedException();
+            IEnumerable<Movie> query = _movies;
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(movie => movie.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+
+            query = orderBy.ToLowerInvariant() switch
+            {
+                "desc" => query.OrderByDescending(movie => movie.Title),
+                _ => query.OrderBy(movie => movie.Title)
+            };
+
+            if (perPage > 0)
+            {
+                page = Math.Max(page, 1);
+
+                query = query
+                    .Skip(perPage * (page - 1))
+                    .Take(perPage);
+            }
+
+            return query.ToList();
         }
 
-        public Movie UpdateMovie(Movie movie)
+        public Movie? UpdateMovie(Movie movie)
         {
-            var updateMovie = _movies.Where(m => m.Id == movie.Id).FirstOrDefault();
-            if (updateMovie != null)
+            var updateMovie = _movies.FirstOrDefault(m => m.Id == movie.Id);
+
+            if (updateMovie is null)
             {
-                updateMovie.Title = movie.Title;
-                updateMovie.Genre = movie.Genre;
-                updateMovie.ReleaseYear = movie.ReleaseYear;
+                return null;
             }
+
+            updateMovie.Title = movie.Title;
+            updateMovie.Genre = movie.Genre;
+            updateMovie.ReleaseYear = movie.ReleaseYear;
+
             return updateMovie;
         }
     }

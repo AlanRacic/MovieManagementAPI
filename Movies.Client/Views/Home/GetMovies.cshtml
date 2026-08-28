@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Movies.Client.Models.Movie>
 
 @{
-    ViewData["Title"] = "GetMovies";
+    ViewData["Title"] = "Movies";
 }
 
-<h1>GetMovies</h1>
+<h1>Movies</h1>
 
 <p>
     <a asp-action="CreateMovie">Create New</a>
@@ -43,9 +43,7 @@
                 @Html.DisplayFor(modelItem => item.ReleaseYear)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "GetMovie", new { id=item.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Details", "GetMovie", new { id = item.Id })
             </td>
         </tr>
 }

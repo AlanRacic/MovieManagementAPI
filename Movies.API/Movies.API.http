@@ -1,6 +1,17 @@
-@Movies.API_HostAddress = http://localhost:5239
+@Movies.API_HostAddress = https://localhost:7253
 
-GET {{Movies.API_HostAddress}}/weatherforecast/
+### Get all movies
+GET {{Movies.API_HostAddress}}/api/Movies
 Accept: application/json
 
 ###
+
+### Get movie by ID
+GET {{Movies.API_HostAddress}}/api/Movies/1
+Accept: application/json
+
+###
+
+### Search, sort and paginate movies
+GET {{Movies.API_HostAddress}}/api/Movies/search?s=Matrix&orderby=asc&per_page=10&page=1
+Accept: application/json
