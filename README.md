@@ -57,14 +57,14 @@ This keeps HTTP client concerns, API behavior, persistence, and testing separate
 
 `Movies.API` exposes endpoints for:
 
-* retrieving all movies
-* retrieving a movie by ID
-* creating a movie
-* updating a movie
-* deleting a movie
-* searching movies by title
-* sorting results by title
-* paginating query results
+- retrieving all movies
+- retrieving a movie by ID
+- creating a movie
+- updating a movie
+- deleting a movie
+- searching movies by title
+- sorting results by title
+- paginating query results
 
 Example search request:
 
@@ -102,21 +102,11 @@ The repository also includes `Movies.API/Movies.API.http` with example requests 
 
 It currently provides UI workflows for:
 
-* listing movies
-* creating a movie
-* viewing movie details
+- listing movies
+- creating a movie
+- viewing movie details
 
-API communication is performed through a named `HttpClient` created by `IHttpClientFactory`:
-
-```text
-Movies.Client
-      ↓
-IHttpClientFactory
-      ↓
-MoviesApi
-      ↓
-Movies.API
-```
+API communication is performed through a named `HttpClient` created by `IHttpClientFactory`.
 
 The API base address is stored in configuration:
 
@@ -143,35 +133,13 @@ HTTP communication from the MVC client is asynchronous.
 
 Persistence is implemented in the `Movies.Data` class library.
 
-```text
-IMovieRepository
-        ↓
-MovieRepository
-        ↓
-MovieManagementContext
-        ↓
-SQL Server
-```
+`MovieRepository` implements the `IMovieRepository` abstraction and encapsulates CRUD and query operations performed through Entity Framework Core.
 
-`MovieRepository` encapsulates CRUD and query operations performed through Entity Framework Core.
-
-Read-only operations use:
-
-```csharp
-AsNoTracking()
-```
-
-where entity tracking is not required.
+Read-only operations use `AsNoTracking()` where entity tracking is not required.
 
 Repository contracts use nullable return types for lookup, update, and delete operations that may not find a matching movie.
 
-SQL Server configuration belongs to the API host through:
-
-```text
-ConnectionStrings:MoviesDB
-```
-
-rather than being hardcoded inside `MovieManagementContext`.
+SQL Server configuration belongs to the API host through `ConnectionStrings:MoviesDB` rather than being hardcoded inside `MovieManagementContext`.
 
 ---
 
@@ -179,10 +147,10 @@ rather than being hardcoded inside `MovieManagementContext`.
 
 Expected API conditions are mapped to appropriate HTTP responses:
 
-* `200 OK` for successful reads and updates
-* `201 Created` after creating a movie
-* `400 Bad Request` for invalid requests
-* `404 Not Found` when a movie does not exist
+- `200 OK` for successful reads and updates
+- `201 Created` after creating a movie
+- `400 Bad Request` for invalid requests
+- `404 Not Found` when a movie does not exist
 
 Unexpected exceptions are handled centrally through the ASP.NET Core exception-handling pipeline.
 
@@ -264,13 +232,7 @@ Database: MovieManagementDb
 Authentication: Windows Integrated Security
 ```
 
-The connection can be changed through:
-
-```text
-ConnectionStrings:MoviesDB
-```
-
-without modifying the EF Core `DbContext`.
+The connection can be changed through `ConnectionStrings:MoviesDB` without modifying the EF Core `DbContext`.
 
 ---
 
@@ -278,8 +240,8 @@ without modifying the EF Core `DbContext`.
 
 ### Prerequisites
 
-* .NET 10 SDK
-* SQL Server or SQL Server Express
+- .NET 10 SDK
+- SQL Server or SQL Server Express
 
 ### 1. Prepare the database
 
@@ -331,19 +293,19 @@ In Development, the API also exposes its ASP.NET Core OpenAPI document.
 
 ## Technology Stack
 
-**Backend**
+**Backend**  
 C# · .NET 10 · ASP.NET Core Web API · REST
 
-**Client**
+**Client**  
 ASP.NET Core MVC · Razor · `IHttpClientFactory` · `System.Net.Http.Json`
 
-**Data**
+**Data**  
 Entity Framework Core · SQL Server · LINQ · Repository Pattern
 
-**API Behavior**
+**API Behavior**  
 Dependency Injection · ProblemDetails · OpenAPI
 
-**Testing**
+**Testing**  
 xUnit v3 · EF Core InMemory · Test Repository
 
 ---
@@ -354,13 +316,13 @@ MovieManagementAPI is intentionally a **focused multi-project application** rath
 
 Key design choices include:
 
-* separate ASP.NET Core API and MVC applications;
-* configuration-driven API consumption through `IHttpClientFactory`;
-* repository-based EF Core persistence;
-* database-side filtering, sorting, and pagination;
-* centralized handling of unexpected API exceptions;
-* reproducible tests using isolated in-memory data sources;
-* a lightweight SQL script for local database setup.
+- separate ASP.NET Core API and MVC applications;
+- configuration-driven API consumption through `IHttpClientFactory`;
+- repository-based EF Core persistence;
+- database-side filtering, sorting, and pagination;
+- centralized handling of unexpected API exceptions;
+- reproducible tests using isolated in-memory data sources;
+- a lightweight SQL script for local database setup.
 
 The API provides full movie CRUD plus query functionality, while the MVC client intentionally implements the smaller list, create, and details workflow.
 
