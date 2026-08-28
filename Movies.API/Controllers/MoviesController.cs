@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Movies.Data.Interfaces;
 using Movies.Data.Models;
 
@@ -25,105 +19,81 @@ namespace Movies.API.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Movie>> GetMovies()
         {
-            try
-            {
-                return Ok(_repo.GetAll());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
-            }
+            return Ok(_repo.GetAll());
         }
 
         // GET: api/Movies/5
         [HttpGet("{id}")]
         public ActionResult<Movie> GetMovie(int id)
         {
-            try
-            {
-                var movie = _repo.GetMovieById(id);
+            var movie = _repo.GetMovieById(id);
 
-                if (movie == null) return NotFound();
-                
-                return Ok(movie);
-            }
-            catch (Exception ex)
+            if (movie == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+                return NotFound();
             }
+
+            return Ok(movie);
         }
 
         // POST: api/Movies
         [HttpPost]
         public ActionResult<Movie> PostMovie(Movie movie)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest();
-                }
-
-                var created_movie = _repo.InsertMovie(movie);
-
-                return CreatedAtAction(nameof(GetMovie), new { id = created_movie.Id }, created_movie);
+                return BadRequest();
             }
-            catch (Exception ex) 
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
-            }
+
+            var createdMovie = _repo.InsertMovie(movie);
+
+            return CreatedAtAction(nameof(GetMovie), new { id = createdMovie.Id }, createdMovie);
         }
 
         // PUT: api/Movies/5
         [HttpPut("{id}")]
         public ActionResult PutMovie(int id, Movie movie)
         {
-            try
+            if (id != movie.Id)
             {
-                if (id != movie.Id)
-                {
-                    return BadRequest("Movie ID mismatch!");
-                }
-                var movieUpdate = _repo.UpdateMovie(movie);
-                if (movieUpdate == null) return NotFound($"Movie with ID={id} not found!");
-                return Ok(movieUpdate);
+                return BadRequest("Movie ID mismatch!");
             }
-            catch (Exception ex)
+
+            var movieUpdate = _repo.UpdateMovie(movie);
+
+            if (movieUpdate == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
+                return NotFound($"Movie with ID={id} not found!");
             }
+
+            return Ok(movieUpdate);
         }
 
         // DELETE: api/Movies/5
         [HttpDelete("{id}")]
         public ActionResult DeleteMovie(int id)
         {
-            try
+            var deleted = _repo.DeleteMovie(id);
+
+            if (deleted == null)
             {
-                var deleted = _repo.DeleteMovie(id);
-                if (deleted == null) return NotFound($"Movie with ID={id} not found!");
-                return Ok(deleted);
+                return NotFound($"Movie with ID={id} not found!");
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
-            }
+
+            return Ok(deleted);
         }
 
         // GET: api/Movies/search
         [HttpGet("search")]
-        public ActionResult SearchByQueryString([FromQuery] string s = "", [FromQuery] string orderby = "asc", [FromQuery] int per_page = 10, [FromQuery] int page = 1)
+        public ActionResult SearchByQueryString(
+            [FromQuery] string s = "",
+            [FromQuery] string orderby = "asc",
+            [FromQuery] int per_page = 10,
+            [FromQuery] int page = 1)
         {
-            try
-            {
-                var result = _repo.QueryStringFilter(s, orderby, per_page, page);
+            var result = _repo.QueryStringFilter(s, orderby, per_page, page);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error: " + ex.Message);
-            }
+            return Ok(result);
         }
     }
 }

@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+builder.Services.AddProblemDetails();
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<MovieManagementContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MoviesDB")));
@@ -15,6 +17,8 @@ builder.Services.AddDbContext<MovieManagementContext>(options => options.UseSqlS
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
